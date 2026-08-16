@@ -5,10 +5,19 @@ REMOTE_NAME="${CLOUD_REMOTE_NAME:-mycloud}"
 DEST_PATH="${CLOUD_DEST_PATH:-/backups}"
 RETENTION="${RETENTION_WEEKS:-6}"
 SOURCE_DIR="/data"
-VM_NAME="${HOSTNAME}"
-
-if [ -z "$VM_NAME" ]; then
-    VM_NAME=$(hostname)
+# Determine the VM_NAME.
+# 1. First, check if a specific VM_NAME env var is provided (for overrides)
+# 2. Next, check if we mounted the host's hostname (true host name)
+# 3. Finally, fallback to the container's HOSTNAME or hostname command
+if [ -n "$VM_NAME" ]; then
+    : # Keep VM_NAME
+elif [ -f "/etc/host_hostname" ]; then
+    VM_NAME=$(cat /etc/host_hostname | tr -d '\n')
+else
+    VM_NAME="${HOSTNAME}"
+    if [ -z "$VM_NAME" ]; then
+        VM_NAME=$(hostname)
+    fi
 fi
 
 YEAR=$(date +%Y)
