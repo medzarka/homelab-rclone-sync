@@ -1,6 +1,7 @@
 services:
   backup:
-    image: rclone/rclone:latest
+    build: .
+    image: your-username/homelab-rclone-sync:latest
     container_name: homelab_rclone_sync
     restart: unless-stopped
     environment:
@@ -16,12 +17,8 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - SMTP_FROM=${SMTP_FROM}
       - SMTP_TO=${SMTP_TO}
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "apk add --no-cache docker-cli curl && echo \"$${BACKUP_CRON} /scripts/backup.sh\" > /etc/crontabs/root && crond -f -l 2"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${BACKUP_SOURCE_DIR:-/home/mgrsys/DATA}:/data:ro
-      - ./scripts/backup.sh:/scripts/backup.sh:ro
       - ./config/rclone.conf:/config/rclone/rclone.conf:ro
       - ./config/exclude.txt:/config/rclone/exclude.txt:ro

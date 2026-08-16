@@ -44,11 +44,28 @@ To receive emails when a backup succeeds or fails, configure the SMTP settings i
 ### Bandwidth Saving (`--copy-dest`)
 The script is configured to look at the previous week's backup folder. When the week rolls over and a new folder is created, it tells your cloud provider to perform a **server-side copy** of unchanged files instead of uploading them from your home internet again.
 
-## 3. Usage
+## 3. Remote Deployment with Dockhand (Building the Image)
 
-Start the backup service in the background:
+Since this project now uses a custom Docker image to bundle the scripts directly (avoiding tricky bind-mount errors on remote VPSs), you need to build and push the image to a registry before deploying it via Dockhand.
+
+1. **Build the image locally:**
+   ```bash
+   docker-compose build
+   ```
+2. **Push the image to your registry:**
+   Change `your-username` in the `docker-compose.yaml` file to your Docker Hub username or registry URL, then push:
+   ```bash
+   docker push your-username/homelab-rclone-sync:latest
+   ```
+3. **Deploy via Dockhand:**
+   Now, Dockhand can simply pull this image on any VPS. 
+   *(Note: You will still need to manually copy `config/rclone.conf` and `config/exclude.txt` to the remote VPS, or use Docker Swarm Secrets/Configs if your Dockhand supports them, since they are mounted via volumes).*
+
+## 4. Local Usage
+
+If you are running this on your local machine, simply start the service in the background. It will build automatically:
 ```bash
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 Check the logs to see if it scheduled correctly:
@@ -61,11 +78,12 @@ To run a backup manually immediately (for testing):
 docker exec homelab_rclone_sync /scripts/backup.sh
 ```
 
-## 4. Troubleshooting & Error Handling
+## 5. Troubleshooting & Error Handling
 
 - **Containers won't pause?** Ensure the `homelab_rclone_sync` container has access to `/var/run/docker.sock` (this is configured in `docker-compose.yaml` by default).
 - **Emails aren't sending?** Check your SMTP URL and credentials. Some providers require `smtps://` while others expect `smtp://`.
 - **Rclone errors?** Check the output logs for the container. The script includes advanced error handling that will stop the retention policy (deletions) from running if the main sync fails, keeping your old backups safe.
+- **Error: `"/scripts/backup.sh": is a directory: permission denied`?** This is a classic Docker gotcha. If you copied `docker-compose.yaml` to a new server but forgot to copy the actual `scripts/backup.sh` file, Docker assumes you wanted to mount a directory and automatically creates an empty folder named `backup.sh`. To fix this: run `sudo rm -rf scripts/backup.sh`, copy the actual script file over to your server, and recreate the container.
 
 > [!WARNING]
 > Keep your `rclone.conf` file secure, as it contains the access tokens to your cloud storage!
