@@ -1,7 +1,7 @@
 services:
   backup:
     build: .
-    image: your-username/homelab-rclone-sync:latest
+    image: medzarka/homelab-rclone-sync:latest
     container_name: homelab_rclone_sync
     restart: unless-stopped
     environment:

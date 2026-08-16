@@ -53,9 +53,9 @@ Since this project now uses a custom Docker image to bundle the scripts directly
    docker-compose build
    ```
 2. **Push the image to your registry:**
-   Change `your-username` in the `docker-compose.yaml` file to your Docker Hub username or registry URL, then push:
+   Assuming you are using Docker Hub with your GitHub username, push the image:
    ```bash
-   docker push your-username/homelab-rclone-sync:latest
+   docker push medzarka/homelab-rclone-sync:latest
    ```
 3. **Deploy via Dockhand:**
    Now, Dockhand can simply pull this image on any VPS. 
