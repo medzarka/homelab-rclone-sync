@@ -44,12 +44,12 @@ send_email() {
         echo "" >> "$tmp_mail"
         echo "${message}" >> "$tmp_mail"
         
-        curl --silent --ssl-reqd \
+        curl -sS --ssl-reqd \
           --url "$SMTP_URL" \
           --user "$SMTP_USER:$SMTP_PASSWORD" \
           --mail-from "$SMTP_FROM" \
           --mail-rcpt "$SMTP_TO" \
-          --upload-file "$tmp_mail" || echo "Failed to send email."
+          --upload-file "$tmp_mail" || echo "❌ Failed to send email (check docker logs for curl error)."
         
         rm -f "$tmp_mail"
     fi
