@@ -85,9 +85,9 @@ SYNC_SUCCESS=0
 
 if [ -n "$LATEST_BACKUP" ] && [ "$LATEST_BACKUP" != "$FOLDER_NAME" ]; then
     echo "[$(date)] Found previous week's backup: ${LATEST_BACKUP}. Using --copy-dest for server-side copying to save bandwidth!"
-    rclone sync "$SOURCE_DIR" "$BACKUP_DEST" -v --transfers=4 --checkers=8 --fast-list --exclude-from /config/rclone/exclude.txt --copy-dest "${REMOTE_NAME}:${DEST_PATH}/${VM_NAME}/${LATEST_BACKUP}" || SYNC_SUCCESS=$?
+    rclone sync "$SOURCE_DIR" "$BACKUP_DEST" -v --transfers=4 --checkers=8 --tpslimit=5 --timeout=5m --fast-list --exclude-from /config/rclone/exclude.txt --copy-dest "${REMOTE_NAME}:${DEST_PATH}/${VM_NAME}/${LATEST_BACKUP}" || SYNC_SUCCESS=$?
 else
-    rclone sync "$SOURCE_DIR" "$BACKUP_DEST" -v --transfers=4 --checkers=8 --fast-list --exclude-from /config/rclone/exclude.txt || SYNC_SUCCESS=$?
+    rclone sync "$SOURCE_DIR" "$BACKUP_DEST" -v --transfers=4 --checkers=8 --tpslimit=5 --timeout=5m --fast-list --exclude-from /config/rclone/exclude.txt || SYNC_SUCCESS=$?
 fi
 
 if [ $SYNC_SUCCESS -eq 0 ]; then
