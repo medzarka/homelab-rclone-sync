@@ -17,8 +17,8 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - SMTP_FROM=${SMTP_FROM}
       - SMTP_TO=${SMTP_TO}
+      - RCLONE_CONF_BASE64=${RCLONE_CONF_BASE64}
+      - EXCLUDE_TXT_BASE64=${EXCLUDE_TXT_BASE64}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${BACKUP_SOURCE_DIR:-/home/mgrsys/DATA}:/data:ro
-      - ./config/rclone.conf:/config/rclone/rclone.conf:ro
-      - ./config/exclude.txt:/config/rclone/exclude.txt:ro

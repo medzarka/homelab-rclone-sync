@@ -15,11 +15,8 @@ A fully automated, Dockerized backup solution using Rclone to back up a homelab 
    cp .env.example .env
    ```
 2. Open `.env` and fill in all the variables.
-3. Replace the placeholder in `config/rclone.conf` with your actual rclone remote configuration. You can generate one on your local machine by running `rclone config` and pasting the result here.
-
-> [!WARNING]
-> You **must** edit the `config/rclone.conf` file and provide valid cloud credentials *before* starting the rclone container with `docker-compose up`. If the configuration is missing or invalid, the backups will immediately fail.
-4. (Optional) Add patterns to `config/exclude.txt` for files and folders you want to ignore.
+3. **Rclone Configuration:** Dockhand has trouble parsing multi-line text variables. Convert your `rclone.conf` file to a single-line Base64 string locally (`cat rclone.conf | base64 -w 0`) and paste it into the `RCLONE_CONF_BASE64` variable in the `.env` file.
+4. (Optional) Do the same for any exclude patterns in the `EXCLUDE_TXT_BASE64` variable in the `.env` file.
 5. Review the backup logic in `scripts/backup.sh`.
 
 ## 2. Important Configuration Options
@@ -59,7 +56,7 @@ Since this project now uses a custom Docker image to bundle the scripts directly
    ```
 3. **Deploy via Dockhand:**
    Now, Dockhand can simply pull this image on any VPS. 
-   *(Note: You will still need to manually copy `config/rclone.conf` and `config/exclude.txt` to the remote VPS, or use Docker Swarm Secrets/Configs if your Dockhand supports them, since they are mounted via volumes).*
+   *(Since we inject the configuration via the `.env` file, this deployment is 100% self-contained. You do not need to manually copy any configuration files to the remote servers!)*
 
 ## 4. Local Usage
 
@@ -86,4 +83,4 @@ docker exec homelab_rclone_sync /scripts/backup.sh
 - **Error: `"/scripts/backup.sh": is a directory: permission denied`?** This is a classic Docker gotcha. If you copied `docker-compose.yaml` to a new server but forgot to copy the actual `scripts/backup.sh` file, Docker assumes you wanted to mount a directory and automatically creates an empty folder named `backup.sh`. To fix this: run `sudo rm -rf scripts/backup.sh`, copy the actual script file over to your server, and recreate the container.
 
 > [!WARNING]
-> Keep your `rclone.conf` file secure, as it contains the access tokens to your cloud storage!
+> Keep your `.env` file secure, as it now contains the access tokens to your cloud storage!
