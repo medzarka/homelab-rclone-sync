@@ -4,6 +4,10 @@
 **/log/**
 /var/log/**
 
+# === Seafile ===
+# Matches any folder starting with "seafile" and all its contents
+**/seafile*/**
+
 # === Python Virtual Environments ===
 **/venv/**
 **/.venv/**
