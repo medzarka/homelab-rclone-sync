@@ -1,0 +1,6 @@
+# Add patterns to exclude from your backup here
+# Example:
+# .DS_Store
+# node_modules/
+# tmp/
+# *.log
