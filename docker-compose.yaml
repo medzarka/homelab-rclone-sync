@@ -23,3 +23,15 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${BACKUP_SOURCE_DIR:-/home/mgrsys/DATA}:/data:ro
       - /etc/hostname:/etc/host_hostname:ro
+    networks:
+      - shared_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  shared_net:
+    name: ${SHARED_NETWORK:-shared_net}
+    external: true
