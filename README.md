@@ -30,13 +30,50 @@ If you are backing up databases (like PostgreSQL, MySQL) or apps that constantly
 
 The script will automatically run `docker pause <name>` before the sync, and `docker unpause <name>` right after. If the backup crashes for any reason, the script's `trap` mechanism guarantees the containers will be unpaused before the script exits.
 
-### Email Alerts
-To receive emails when a backup succeeds or fails, configure the SMTP settings in the `.env` file.
+### Email Alerts & Notification Policies
+Control when emails are sent via `EMAIL_NOTIFY_MODE` in `.env`:
+
+| Policy | Behavior | Best Used For |
+| :--- | :--- | :--- |
+| **`on_failure`** *(Default)* | Sends email **only** when a backup fails or encounters errors. | **Recommended**: Eliminates daily inbox clutter while keeping you alerted to issues. |
+| **`weekly`** | Sends on errors + one full summary report every Sunday. | Weekly digest overview of backup health. |
+| **`always`** | Sends an email report after every single backup run. | Strict auditing / initial setup verification. |
+| **`never`** | Completely disables email alerts. | Relying exclusively on Dozzle, Beszel, and Uptime Kuma. |
 
 > [!IMPORTANT]
 > - `SMTP_URL` must include the protocol (e.g., `smtps://` for port 465, or `smtp://` for port 587).
 > - Example: `SMTP_URL="smtps://smtp.gmail.com:465"`
 > - Use an App Password (not your main password) if using Gmail!
+
+### Deep Telemetry & Storage Insights
+Every backup run logs a structured summary report to standard output (viewable directly in Dozzle at `https://logs.example.com`):
+
+```text
+======================================================================
+📊 BACKUP REPORT: my_server (2026-08-22 19:20:00 UTC)
+======================================================================
+Status:            ✅ SUCCESS
+Execution Time:    2m 14s (134s)
+Target Snapshot:   mycloud:/backups/my_server/2026-08-Wk4
+Notification Mode: on_failure
+
+📦 Transfer Statistics:
+  • Data Transferred:   1.42 GiB
+  • Files Transferred:  84 / 84
+  • Files Checked:      12,450 / 12,450
+  • Files Deleted:      4
+  • Error Count:        0
+
+💾 Storage & Quota Insights:
+  • Local Source Size:  45.8 GiB (/data)
+  • Host Disk Usage:    52% used (142 GiB free of 298 GiB)
+  • Cloud Snapshot:     Total objects: 12450, Total size: 45.8 GiB
+  • Cloud Remote Quota: 1.25 TiB used | 750 GiB free | 2.00 TiB total
+
+🗑️ Retention Policy (4 Weeks):
+  • Purged Snapshots:   None (within retention window)
+======================================================================
+```
 
 ### Bandwidth Saving (`--copy-dest`)
 The script is configured to look at the previous week's backup folder. When the week rolls over and a new folder is created, it tells your cloud provider to perform a **server-side copy** of unchanged files instead of uploading them from your home internet again.
