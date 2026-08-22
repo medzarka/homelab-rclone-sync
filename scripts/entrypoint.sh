@@ -5,6 +5,12 @@ BACKUP_CRON=${BACKUP_CRON:-"0 2 * * *"}
 
 echo "[$(date)] Starting rclone backup service..."
 
+# Install curl and docker-cli if missing on startup
+if ! command -v curl >/dev/null 2>&1 || ! command -v docker >/dev/null 2>&1; then
+    echo "[$(date)] 📦 Installing required runtime dependencies (curl, docker-cli)..."
+    apk add --no-cache curl docker-cli >/dev/null 2>&1 || echo "Warning: Failed to install apk packages"
+fi
+
 # Create config directory
 mkdir -p /config/rclone
 

@@ -82,22 +82,18 @@ Notification Mode: on_failure
 ### Bandwidth Saving (`--copy-dest`)
 The script is configured to look at the previous week's backup folder. When the week rolls over and a new folder is created, it tells your cloud provider to perform a **server-side copy** of unchanged files instead of uploading them from your home internet again.
 
-## 3. Remote Deployment with Dockhand (Building the Image)
+## 3. Remote Deployment with Arcane / GitOps
 
-Since this project now uses a custom Docker image to bundle the scripts directly (avoiding tricky bind-mount errors on remote VPSs), you need to build and push the image to a registry before deploying it via Dockhand.
+This stack uses the official `rclone/rclone:latest` image directly from Docker Hub and mounts scripts automatically. No custom image building or Docker registry login is required!
 
-1. **Build the image locally:**
-   ```bash
-   docker-compose build
-   ```
-2. **Push the image to your registry:**
-   Assuming you are using Docker Hub with your GitHub username, push the image:
-   ```bash
-   docker push medzarka/homelab-rclone-sync:latest
-   ```
-3. **Deploy via Dockhand:**
-   Now, Dockhand can simply pull this image on any VPS. 
-   *(Since we inject the configuration via the `.env` file, this deployment is 100% self-contained. You do not need to manually copy any configuration files to the remote servers!)*
+1. Open **Arcane Cockpit** (`https://arcane.example.com`).
+2. Click **Projects** $\rightarrow$ **New Project**.
+3. Set:
+   * **Name:** `backup-sync`
+   * **Git Repository:** `https://github.com/medzarka/homelab-rclone-sync.git`
+   * **Branch:** `main`
+4. Provide the `.env` variables from `.env.example`.
+5. Click **Deploy**. Arcane will pull the official Rclone image and start the backup daemon automatically.
 
 ## 4. Local Usage
 

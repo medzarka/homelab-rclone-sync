@@ -1,9 +1,9 @@
 services:
   backup:
-    build: .
-    image: medzarka/homelab-rclone-sync:latest
+    image: rclone/rclone:latest
     container_name: homelab_rclone_sync
     restart: unless-stopped
+    entrypoint: ["/scripts/entrypoint.sh"]
     environment:
       - TZ=${TZ:-UTC}
       - CLOUD_REMOTE_NAME=${CLOUD_REMOTE_NAME}
@@ -21,6 +21,7 @@ services:
       - RCLONE_CONF_BASE64=${RCLONE_CONF_BASE64}
       - RCLONE_CONFIG_PASS=${RCLONE_CONFIG_PASS:-}
     volumes:
+      - ./scripts:/scripts:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${BACKUP_SOURCE_DIR:-/home/mgrsys/DATA}:/data:ro
       - /etc/hostname:/etc/host_hostname:ro
