@@ -23,17 +23,11 @@ else
     echo "[$(date)] WARNING: RCLONE_CONF_BASE64 is empty. Rclone may not be able to connect."
 fi
 
-# Set up exclude rules
-if [ -f "/config/rclone/exclude.txt" ] && [ -s "/config/rclone/exclude.txt" ]; then
-    echo "[$(date)] 📄 Using custom exclude rules from mounted exclude.txt."
-elif [ -n "$EXCLUDE_TXT_BASE64" ]; then
-    echo "[$(date)] Injecting exclude rules from EXCLUDE_TXT_BASE64 variable..."
-    echo "$EXCLUDE_TXT_BASE64" | base64 -d > /config/rclone/exclude.txt
-elif [ -f "/scripts/exclude.txt.sample" ]; then
-    echo "[$(date)] ℹ️ No custom exclude.txt provided. Applying default rules from exclude.txt.sample."
-    cp /scripts/exclude.txt.sample /config/rclone/exclude.txt
+# Check exclude configuration
+if [ -f "/config/rclone/exclude.txt" ] && [ ! -d "/config/rclone/exclude.txt" ] && [ -s "/config/rclone/exclude.txt" ]; then
+    echo "[$(date)] 📄 Detected custom exclude rules file at /config/rclone/exclude.txt."
 else
-    touch /config/rclone/exclude.txt
+    echo "[$(date)] ℹ️ Using default built-in exclude rules."
 fi
 
 echo "[$(date)] Setting up cron schedule: ${BACKUP_CRON}"
