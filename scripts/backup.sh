@@ -91,6 +91,18 @@ SYNC_LOG="/tmp/rclone_sync.log"
 rm -f "$SYNC_LOG"
 SYNC_SUCCESS=0
 
+# Determine active exclude file safely (handles missing file or accidental Docker directory creation)
+EXCLUDE_FILE="/config/rclone/exclude.txt"
+if [ -f "$EXCLUDE_FILE" ] && [ ! -d "$EXCLUDE_FILE" ] && [ -s "$EXCLUDE_FILE" ]; then
+    echo "[$(date)] 📄 Using custom exclude rules from ${EXCLUDE_FILE}."
+    EXCLUDE_ARG="--exclude-from ${EXCLUDE_FILE}"
+elif [ -f "/scripts/exclude.txt.sample" ]; then
+    echo "[$(date)] ℹ️ Custom exclude.txt not found. Applying default built-in exclude rules."
+    EXCLUDE_ARG="--exclude-from /scripts/exclude.txt.sample"
+else
+    EXCLUDE_ARG=""
+fi
+
 # Execute Rclone Sync
 if [ -n "$LATEST_BACKUP" ] && [ "$LATEST_BACKUP" != "$FOLDER_NAME" ]; then
     echo "[$(date)] ⚡ Previous week found: ${LATEST_BACKUP}. Utilizing server-side --copy-dest to save bandwidth!"
@@ -102,7 +114,7 @@ if [ -n "$LATEST_BACKUP" ] && [ "$LATEST_BACKUP" != "$FOLDER_NAME" ]; then
       --tpslimit=5 \
       --timeout=5m \
       --fast-list \
-      --exclude-from /config/rclone/exclude.txt \
+      ${EXCLUDE_ARG} \
       --copy-dest "${REMOTE_NAME}:${DEST_PATH}/${VM_NAME}/${LATEST_BACKUP}" \
       > "$SYNC_LOG" 2>&1 || SYNC_SUCCESS=$?
 else
@@ -114,7 +126,7 @@ else
       --tpslimit=5 \
       --timeout=5m \
       --fast-list \
-      --exclude-from /config/rclone/exclude.txt \
+      ${EXCLUDE_ARG} \
       > "$SYNC_LOG" 2>&1 || SYNC_SUCCESS=$?
 fi
 
