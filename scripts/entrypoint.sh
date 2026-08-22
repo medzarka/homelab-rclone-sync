@@ -17,12 +17,16 @@ else
     echo "[$(date)] WARNING: RCLONE_CONF_BASE64 is empty. Rclone may not be able to connect."
 fi
 
-# Inject exclude rules from base64 environment variable
-if [ -n "$EXCLUDE_TXT_BASE64" ]; then
+# Set up exclude rules
+if [ -f "/config/rclone/exclude.txt" ] && [ -s "/config/rclone/exclude.txt" ]; then
+    echo "[$(date)] 📄 Using custom exclude rules from mounted exclude.txt."
+elif [ -n "$EXCLUDE_TXT_BASE64" ]; then
     echo "[$(date)] Injecting exclude rules from EXCLUDE_TXT_BASE64 variable..."
     echo "$EXCLUDE_TXT_BASE64" | base64 -d > /config/rclone/exclude.txt
+elif [ -f "/scripts/exclude.txt.sample" ]; then
+    echo "[$(date)] ℹ️ No custom exclude.txt provided. Applying default rules from exclude.txt.sample."
+    cp /scripts/exclude.txt.sample /config/rclone/exclude.txt
 else
-    echo "[$(date)] No EXCLUDE_TXT_BASE64 provided. Creating an empty exclude file."
     touch /config/rclone/exclude.txt
 fi
 

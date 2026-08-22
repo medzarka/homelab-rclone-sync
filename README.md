@@ -16,7 +16,11 @@ A fully automated, Dockerized backup solution using Rclone to back up a homelab 
    ```
 2. Open `.env` and fill in all the variables.
 3. **Rclone Configuration:** Dockhand has trouble parsing multi-line text variables. Convert your `rclone.conf` file to a single-line Base64 string locally (`cat rclone.conf | base64 -w 0`) and paste it into the `RCLONE_CONF_BASE64` variable in the `.env` file.
-4. (Optional) Do the same for any exclude patterns in the `EXCLUDE_TXT_BASE64` variable in the `.env` file.
+4. **Exclude Rules:** Copy `exclude.txt.sample` to `exclude.txt`:
+   ```bash
+   cp exclude.txt.sample exclude.txt
+   ```
+   Add or modify any patterns you wish to exclude (e.g. `node_modules`, `venv`, logs, cache). `exclude.txt` is mounted directly into the container and ignored by Git.
 5. Review the backup logic in `scripts/backup.sh`.
 
 ## 2. Important Configuration Options

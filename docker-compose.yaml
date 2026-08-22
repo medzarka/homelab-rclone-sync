@@ -20,11 +20,11 @@ services:
       - EMAIL_NOTIFY_MODE=${EMAIL_NOTIFY_MODE:-on_failure}
       - RCLONE_CONF_BASE64=${RCLONE_CONF_BASE64}
       - RCLONE_CONFIG_PASS=${RCLONE_CONFIG_PASS:-}
-      - EXCLUDE_TXT_BASE64=${EXCLUDE_TXT_BASE64}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${BACKUP_SOURCE_DIR:-/home/mgrsys/DATA}:/data:ro
       - /etc/hostname:/etc/host_hostname:ro
+      - ./exclude.txt:/config/rclone/exclude.txt:ro
     networks:
       - shared_net
     logging:
