@@ -12,6 +12,7 @@ mkdir -p /config/rclone
 if [ -n "$RCLONE_CONF_BASE64" ]; then
     echo "[$(date)] Injecting rclone config from RCLONE_CONF_BASE64 variable..."
     echo "$RCLONE_CONF_BASE64" | base64 -d > /config/rclone/rclone.conf
+    [ -n "$RCLONE_CONFIG_PASS" ] && echo "[$(date)] 🔐 RCLONE_CONFIG_PASS detected for encrypted rclone.conf."
 else
     echo "[$(date)] WARNING: RCLONE_CONF_BASE64 is empty. Rclone may not be able to connect."
 fi
