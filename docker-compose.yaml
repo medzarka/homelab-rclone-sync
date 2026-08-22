@@ -28,6 +28,9 @@ services:
       - ./exclude.txt:/config/rclone/exclude.txt:ro
     networks:
       - shared_net
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     logging:
       driver: "json-file"
       options:
